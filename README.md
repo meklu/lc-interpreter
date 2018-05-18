@@ -43,3 +43,5 @@ NB: In these notes `<…>` are arbitrary lambda expressions.
 	- [ ] Longer named variables with backtick notation
 
 		e.g. ``\x.(x`foo bar zot`)``
+
+		- [x] Tokenizer
