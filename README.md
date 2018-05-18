@@ -14,24 +14,28 @@ NB: In these notes `<…>` are arbitrary lambda expressions.
 	- [ ] Syntax tree generation
 		- [ ] Basic statements/operations
 			- [ ] Variable (essentially passthrough)
-			      `x`
+				- `x`
 			- [ ] Abstraction
-			      `(\x.<Phi>)`
-			      - `\xy.<Phi>` -> `\x.\y.<Phi>`
+				- `(\x.<Phi>)`
+				- `\xy.<Phi>` → `\x.\y.<Phi>`
 			- [ ] Application
-			      `(<Phi><Psi>)`
+				- `(<Phi><Psi>)`
 		- [ ] Substitution
-		      `[x:=z]\y.x` -> `\y.z`
-		      `[x:=\z.z]\y.x` -> `\y.\z.z`
+			- `[x:=z]\y.x` → `\y.z`
+			- `[x:=\z.z]\y.x` → `\y.\z.z`
 - [ ] LC interpreter
 	- [ ] ß-reduction of statements
-	      Thought: If `<Phi>` reduces to something alpha congruent to
-	      `<Phi>`, we could probably detect that during compilation to
-	      avoid infinite recursion. Probably.
+
+		Thought: If `<Phi>` reduces to something alpha congruent to
+		`<Phi>`, we could probably detect that during compilation to
+		avoid infinite recursion. Probably.
 
 - [ ] Fancy extensions
 	- [ ] Arithmetic (parser || evaluator)
-	      We *could* extend our syntax tree with these types of nodes and
-	      associate them with math operations
+
+		We *could* extend our syntax tree with these types of nodes and
+		associate them with math operations
+
 	- [ ] Longer named variables with backtick notation
-	      e.g. ``\x.(x`foo bar zot`)``
+
+		e.g. ``\x.(x`foo bar zot`)``
