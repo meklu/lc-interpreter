@@ -13,7 +13,8 @@ Whitespace (`"\t\n\r "`) is ignored.
 NB: In these notes `<…>` are arbitrary lambda expressions.
 
 - [ ] LC parser
-	- [ ] Tokenization
+	- [x] Tokenization
+		- Should be mostly done. If extended, needs work :)
 	- [ ] Syntax tree generation
 		- [ ] Basic statements/operations
 			- [ ] Variable (essentially passthrough)
