@@ -6,11 +6,14 @@ TBD: Everything
 The lambda symbol shall be represented in code as the backslash character, `\`,
 e.g. `\x.xz`.
 
+Whitespace (`"\t\n\r "`) is ignored.
+
 # TODO
 
 NB: In these notes `<…>` are arbitrary lambda expressions.
 
 - [ ] LC parser
+	- [ ] Tokenization
 	- [ ] Syntax tree generation
 		- [ ] Basic statements/operations
 			- [ ] Variable (essentially passthrough)
