@@ -14,8 +14,8 @@ instance Eq Token where
 lambdaToken :: Char
 lambdaToken = '\\'
 
-abstrToken :: Char
-abstrToken = '.'
+periodToken :: Char
+periodToken = '.'
 
 parenLeft :: Char
 parenLeft = '('
@@ -46,7 +46,7 @@ tokenizeExpr :: String -> [Token]
 tokenizeExpr []                           = []
 tokenizeExpr (x:xs) | isWhitespace x      = tokenizeExpr xs
                     | x == lambdaToken    = Lambda     : tokenizeExpr xs
-                    | x == abstrToken     = Period     : tokenizeExpr xs
+                    | x == periodToken    = Period     : tokenizeExpr xs
                     | x == parenLeft      = ParenLeft  : tokenizeExpr xs
                     | x == parenRight     = ParenRight : tokenizeExpr xs
                     | isVariable x        = Identifier [x]    : tokenizeExpr xs
