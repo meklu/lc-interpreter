@@ -3,6 +3,14 @@ module Tokenize where
 data Token = Lambda | Period | ParenLeft | ParenRight | Identifier String
   deriving Show
 
+instance Eq Token where
+  Lambda       == Lambda       = True
+  Period       == Period       = True
+  ParenLeft    == ParenLeft    = True
+  ParenRight   == ParenRight   = True
+  Identifier x == Identifier y = x == y
+  _            == _            = False
+
 lambdaToken :: Char
 lambdaToken = '\\'
 
