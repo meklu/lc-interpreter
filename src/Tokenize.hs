@@ -26,34 +26,34 @@ parenRight = ')'
 whitespaceChars :: [Char]
 whitespaceChars = "\t\n\r "
 
-variableChars :: [Char]
-variableChars = ['a'..'z'] ++ ['A'..'Z']
+identifierChars :: [Char]
+identifierChars = ['a'..'z'] ++ ['A'..'Z']
 
 isWhitespace :: Char -> Bool
 isWhitespace x = x `elem` whitespaceChars
 
-isVariable :: Char -> Bool
-isVariable x = x `elem` variableChars
+isIdentifier :: Char -> Bool
+isIdentifier x = x `elem` identifierChars
 
 -- ext.
-longVarToken :: Char
-longVarToken = '`'
+longIdToken :: Char
+longIdToken = '`'
 
-longVarWhitelist :: [Char]
-longVarWhitelist = variableChars ++ " "
+longIdWhitelist :: [Char]
+longIdWhitelist = identifierChars ++ " "
 
 tokenizeExpr :: String -> [Token]
-tokenizeExpr []                           = []
-tokenizeExpr (x:xs) | isWhitespace x      = tokenizeExpr xs
-                    | x == lambdaToken    = Lambda     : tokenizeExpr xs
-                    | x == periodToken    = Period     : tokenizeExpr xs
-                    | x == parenLeft      = ParenLeft  : tokenizeExpr xs
-                    | x == parenRight     = ParenRight : tokenizeExpr xs
-                    | isVariable x        = Identifier [x]    : tokenizeExpr xs
-                    | x == longVarToken   = longIdentifier "" xs where
-                      longIdentifier :: String -> String -> [Token]
-                      longIdentifier _ []                                 = error "Unterminated long var!"
-                      longIdentifier s (x:xs) | x == longVarToken         = Identifier s : tokenizeExpr xs
-                                       | x `elem` longVarWhitelist = longIdentifier (s ++ [x]) xs
-                                       | otherwise                 = error $ "Illegal long var character " ++ [x,'!']
-tokenizeExpr (x:_)                        = error $ "Unrecognized token " ++ [x,'!']
+tokenizeExpr []                         = []
+tokenizeExpr (x:xs) | isWhitespace x    = tokenizeExpr xs
+                    | x == lambdaToken  = Lambda         : tokenizeExpr xs
+                    | x == periodToken  = Period         : tokenizeExpr xs
+                    | x == parenLeft    = ParenLeft      : tokenizeExpr xs
+                    | x == parenRight   = ParenRight     : tokenizeExpr xs
+                    | isIdentifier x    = Identifier [x] : tokenizeExpr xs
+                    | x == longIdToken  = longIdentifier "" xs where
+                        longIdentifier :: String -> String -> [Token]
+                        longIdentifier _ []                                = error "Unterminated long identifier!"
+                        longIdentifier s (x:xs) | x == longIdToken         = Identifier s : tokenizeExpr xs
+                                                | x `elem` longIdWhitelist = longIdentifier (s ++ [x]) xs
+                                                | otherwise                = error $ "Illegal long identifier character " ++ [x,'!']
+tokenizeExpr (x:_)                      = error $ "Unrecognized token " ++ [x,'!']
