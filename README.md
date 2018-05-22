@@ -17,13 +17,15 @@ NB: In these notes `<…>` are arbitrary lambda expressions.
 		- Should be mostly done. If extended, needs work :)
 	- [ ] Syntax tree generation
 		- [ ] Basic statements/operations
-			- [ ] Variable (essentially passthrough)
+			- [x] Variable (essentially passthrough)
 				- `x`
-			- [ ] Abstraction
+			- [x] Abstraction
 				- `(\x.<Phi>)`
 				- `\xy.<Phi>` → `\x.\y.<Phi>`
-			- [ ] Application
+			- [x] Application
 				- `(<Phi><Psi>)`
+				- Needs to be made left-associative
+		- [ ] Correct sub-expression grouping
 		- [ ] Substitution
 			- `[x:=z]\y.x` → `\y.z`
 			- `[x:=\z.z]\y.x` → `\y.\z.z`
