@@ -127,3 +127,7 @@ showTree xpr = go 0 str
     go indent ('}':xs)     = "\n" ++ indT (indent - 1) ++ "}\n" ++ indT (indent - 1) ++ go (indent - 1) xs
     go indent ( x :xs)     = x : go indent xs
     go indent _            = []
+
+dbgTree :: String -> String
+dbgTree expr = let (state,xpr) = generateTree (tokenizeExpr expr)
+               in  strLog state ++ "\nxpr = " ++ showTree xpr ++ "\n"
