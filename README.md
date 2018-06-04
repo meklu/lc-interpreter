@@ -8,6 +8,29 @@ e.g. `\x.xz`.
 
 Whitespace (`"\t\n\r "`) is ignored.
 
+# Notes
+
+Since this is not quite finished, here are a couple of usage notes in case
+anything here is of interest:
+
+To get to an interactive prompt, run the following under `src/`:
+
+    stack ghci Lex.hs
+
+To generate a token stream from an LC program in the interactive Haskell
+prompt, you may run something like this:
+
+    tokenizeExpr "(\\x.xyz)"
+
+To generate a tree you may run this:
+
+    generateTree $ tokenizeExpr "foo"
+
+If you want prettier output along with some hopefully useful debug info,
+run the following:
+
+    putStr $ dbgTree "\\x.xyz"
+
 # TODO
 
 NB: In these notes `<…>` are arbitrary lambda expressions.

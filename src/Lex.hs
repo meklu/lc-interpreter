@@ -99,12 +99,12 @@ gen state (Lambda:Identifier a:Identifier b:xs) = gen state $ Lambda:Identifier 
 gen state (Lambda:Identifier bind:Period:xs)    = let
                                                     (ns,rest,inner) = genSub state xs
                                                     outer           = Abstraction (Variable bind (lexGetCounter ns)) inner
-                                                    (fs,applxpr) = gen (lexIncrCounter (lexSetGreedy ns False)) rest
+                                                    (fs,applxpr)    = gen (lexIncrCounter (lexSetGreedy ns False)) rest
                                                   in
                                                     (fs,applWrap outer applxpr)
 gen state (Identifier x:xs)                     = let var        = Variable x (lexGetCounter state)
                                                       (ns,right) = gen (lexIncrCounter state) xs
-                                                  in (ns,applWrap var right)
+                                                  in  (ns,applWrap var right)
 -- FIXME: implement the rest
 gen state (x:xs)                                = gen state xs
 gen state _                                     = (state,Empty)
@@ -121,12 +121,12 @@ showTree xpr = go 0 str
     str = show xpr
     indKnot = ' ' : indKnot
     indT indent = take (indent * step) indKnot
-    go indent ('{':xs)     = "{\n" ++ (indT (indent + 1)) ++ go (indent + 1) xs
+    go indent ('{':xs)         = "{\n" ++ (indT (indent + 1)) ++ go (indent + 1) xs
     go indent ('}':',':' ':xs) = "\n" ++ indT (indent - 1) ++ "},\n" ++ indT (indent - 1) ++ go (indent - 1) xs
     go indent ('}':'}':xs)     = "\n" ++ indT (indent - 1) ++ "}" ++ go (indent - 1) ('}':xs)
-    go indent ('}':xs)     = "\n" ++ indT (indent - 1) ++ "}\n" ++ indT (indent - 1) ++ go (indent - 1) xs
-    go indent ( x :xs)     = x : go indent xs
-    go indent _            = []
+    go indent ('}':xs)         = "\n" ++ indT (indent - 1) ++ "}\n" ++ indT (indent - 1) ++ go (indent - 1) xs
+    go indent ( x :xs)         = x : go indent xs
+    go indent _                = []
 
 dbgTree :: String -> String
 dbgTree expr = let (state,xpr) = generateTree (tokenizeExpr expr)
