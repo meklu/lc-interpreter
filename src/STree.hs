@@ -8,6 +8,8 @@ data Expression = Variable { identifier :: String, number :: Int }
                 | Abstraction { binding :: Expression, inner :: Expression }
                 -- The right side is given as a parameter to the left
                 | Application { left :: Expression, right :: Expression }
+                -- An internal first-pass entity that will be parsed into an Application tree
+                | SubExpression { terms :: [Expression] }
                 -- Something that shouldn't exist
                 | Empty
   deriving Show

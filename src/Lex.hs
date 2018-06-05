@@ -73,7 +73,12 @@ lexBalanced :: LexState -> Bool
 lexBalanced (LexState { parensLeft = pl, parensRight = pr}) = pl == pr
 
 generateTree :: [Token] -> (LexState,Expression)
-generateTree xs = gen lexInit xs
+generateTree xs = gen lexInit (normalizeTokens xs)
+
+normalizeTokens :: [Token] -> [Token]
+-- turn \xy.<foo> into \x.\y.<foo>
+normalizeTokens (Lambda:Identifier a:Identifier b:xs) = Lambda:Identifier a:Period:normalizeTokens (Lambda:Identifier b:xs)
+normalizeTokens xs                                    = xs
 
 applWrap :: Expression -> Expression -> Expression
 applWrap Empty xpr                              = xpr
@@ -81,7 +86,7 @@ applWrap xpr Empty                              = xpr
 applWrap xpr xpr2                               = Application xpr xpr2
 
 genSub :: LexState -> [Token] -> (LexState,[Token],Expression)
-genSub state    []                              = (state,[],Empty)
+genSub state []                                 = (state,[],Empty)
 genSub state xs                                 = let (tokens,rest) = takeSub xs
                                                       (ns,xpr)      = gen state tokens
                                                   in  (lexLog ns ("genSub: " ++ show (tokens,rest)),rest,xpr)
@@ -94,8 +99,6 @@ gen state ((ParenLeft):xs)                      = let (ns,rest,xpr) = genSub (le
                                                   in  (ns2,applWrap xpr xpr2)
 gen state ((ParenRight):xs) | lexBalanced state = error "Closing paren makes the expression unbalanced!"
                             | otherwise         = gen (lexIncrRight state) xs
--- turn \xy.<foo> into \x.\y.<foo>
-gen state (Lambda:Identifier a:Identifier b:xs) = gen state $ Lambda:Identifier a:Period:Lambda:Identifier b:xs
 gen state (Lambda:Identifier bind:Period:xs)    = let
                                                     (ns,rest,inner) = genSub state xs
                                                     outer           = Abstraction (Variable bind (lexGetCounter ns)) inner
