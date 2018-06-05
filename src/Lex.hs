@@ -73,7 +73,19 @@ lexBalanced :: LexState -> Bool
 lexBalanced (LexState { parensLeft = pl, parensRight = pr}) = pl == pr
 
 generateTree :: [Token] -> (LexState,Expression)
-generateTree xs = gen lexInit (normalizeTokens xs)
+generateTree xs = subToAppl $ gen lexInit (normalizeTokens xs)
+
+-- turns a SubExpression into an Application tree
+subToAppl :: (LexState,Expression) -> (LexState,Expression)
+subToAppl (s,SubExpression [])         = (s,Empty)
+subToAppl (s,SubExpression (l:r:rest)) = let (ns,rx) = subToAppl (s,SubExpression rest) in (ns, applWrap (applWrap l r) rx)
+subToAppl (s,SubExpression [x])        = let (ns,rx) = subToAppl (s,x)                  in (ns, rx)
+subToAppl (s,Abstraction b x)          = let (ns,rx) = subToAppl (s,x)                  in (ns, Abstraction b rx)
+-- probably not necessary but good to have just in case
+subToAppl (s,Application l r)          = let (ns,ll) = subToAppl (s,l)
+                                             (fs,rr) = subToAppl (ns,r)
+                                         in  (fs,applWrap ll rr)
+subToAppl r                            = r
 
 normalizeTokens :: [Token] -> [Token]
 -- turn \xy.<foo> into \x.\y.<foo>
