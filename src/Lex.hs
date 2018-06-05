@@ -79,7 +79,9 @@ generateTree xs = subToAppl $ gen lexInit (normalizeTokens xs)
 subToAppl :: (LexState,Expression) -> (LexState,Expression)
 subToAppl (s,SubExpression [])       = (s,Empty)
 subToAppl (s,SubExpression [x])      = let (ns,rx) = subToAppl (s,x)                  in (ns, rx)
-subToAppl (s,SubExpression (x:rest)) = let (ns,rx) = subToAppl (s,SubExpression rest) in (ns, applWrap x rx)
+subToAppl (s,SubExpression (x:rest)) = let (ns,nx) = subToAppl (s,x)
+                                           (fs,rx) = subToAppl (s,SubExpression rest)
+                                       in  (fs, applWrap nx rx)
 subToAppl (s,Abstraction b x)        = let (ns,rx) = subToAppl (s,x)                  in (ns, Abstraction b rx)
 -- probably not necessary but good to have just in case
 subToAppl (s,Application l r)        = let (ns,ll) = subToAppl (s,l)
@@ -93,30 +95,38 @@ normalizeTokens (Lambda:Identifier a:Identifier b:xs) = Lambda:Identifier a:Peri
 normalizeTokens xs                                    = xs
 
 applWrap :: Expression -> Expression -> Expression
-applWrap Empty xpr                              = xpr
-applWrap xpr Empty                              = xpr
-applWrap xpr xpr2                               = Application xpr xpr2
+applWrap Empty xpr = xpr
+applWrap xpr Empty = xpr
+applWrap xpr xpr2  = Application xpr xpr2
 
-genSub :: LexState -> [Token] -> (LexState,[Token],Expression)
-genSub state []                                 = (state,[],Empty)
-genSub state xs                                 = let (tokens,rest) = takeSub xs
-                                                      (ns,xpr)      = gen state tokens
-                                                  in  (lexLog ns ("genSub: " ++ show (tokens,rest)),rest,xpr)
+genSub :: LexState -> [Token] -> (LexState,Expression)
+genSub state [] = (state,Empty)
+genSub state xs = let (tokens,rest)              = takeSub xs
+                      (ns,xpr)                   = gen state tokens
+                      (fs,rxpr)                  = gen ns rest
+                      unwrapS (SubExpression x)  = x
+                      unwrapS x                  = [x]
+                      sxpr                       = SubExpression $ xpr : unwrapS rxpr
+                  in  (lexLog ns ("genSub: " ++ show (tokens,rest)),sxpr)
 
 takeSub :: [Token] -> ([Token],[Token])
-takeSub xs = (takeWhile (/=ParenRight) xs, dropWhile (/=ParenRight) xs)
+takeSub xs = go 0 0 xs where
+  go pl pr []              = ([],[])
+  go 0  0  (ParenLeft:xs)  = let (l, r) = go 1 0 xs         in (x:l, r) where x = ParenLeft
+  go 0  0  (ParenRight:xs) = error $ "Closing paren makes the sub-expression unbalanced!"
+  go pl pr xs | pl == pr   = ([],xs)
+  go pl pr (ParenLeft:xs)  = let (l, r) = go (pl + 1) pr xs in (x:l, r) where x = ParenLeft
+  go pl pr (ParenRight:xs) = let (l, r) = go pl (pr + 1) xs in (x:l, r) where x = ParenRight
+  go pl pr (x:xs)          = let (l, r) = go pl pr xs       in (x:l, r)
 
-gen state ((ParenLeft):xs)                      = let (ns,rest,xpr) = genSub (lexIncrLeft state) xs
-                                                      (ns2,xpr2)    = gen ns rest
-                                                  in  (ns2,applWrap xpr xpr2)
+gen state ((ParenLeft):xs)                      = genSub (lexIncrLeft state) xs
 gen state ((ParenRight):xs) | lexBalanced state = error "Closing paren makes the expression unbalanced!"
                             | otherwise         = gen (lexIncrRight state) xs
 gen state (Lambda:Identifier bind:Period:xs)    = let
-                                                    (ns,rest,inner) = genSub state xs
-                                                    outer           = Abstraction (Variable bind (lexGetCounter ns)) inner
-                                                    (fs,applxpr)    = gen (lexIncrCounter (lexSetGreedy ns False)) rest
+                                                    (ns,inner)   = genSub state xs
+                                                    outer        = Abstraction (Variable bind (lexGetCounter ns)) inner
                                                   in
-                                                    (fs,applWrap outer applxpr)
+                                                    (ns,outer)
 gen state (Identifier x:xs)                     = let var        = Variable x (lexGetCounter state)
                                                       (ns,right) = gen (lexIncrCounter state) xs
                                                   in  (ns,applWrap var right)
